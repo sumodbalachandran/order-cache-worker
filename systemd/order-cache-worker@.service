@@ -1,0 +1,38 @@
+[Unit]
+Description=Order Cache Worker — CDC Stream Join Pipeline (%i)
+Documentation=https://github.com/sumodbalachandran/order-cache-worker
+After=network.target redis.service
+Requires=redis.service
+
+[Service]
+Type=simple
+User=ocw
+Group=ocw
+WorkingDirectory=/opt/order-cache-worker
+
+# Base environment
+EnvironmentFile=-/opt/order-cache-worker/conf/worker.env
+# Per-instance override (created by scale_workers.sh)
+EnvironmentFile=-/etc/order-cache-worker/%i.env
+
+# Override consumer name to the instance identifier
+Environment=CONSUMER_NAME=%i
+
+ExecStart=/opt/order-cache-worker/venv/bin/python -m app.main
+
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+# Logging — send stdout/stderr to journald
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=order-cache-worker-%i
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
