@@ -1,0 +1,19 @@
+[Unit]
+Description=Grafana Tempo Distributed Tracing Backend
+Documentation=https://grafana.com/docs/tempo/latest/
+After=network.target
+
+[Service]
+Type=simple
+User=ocw
+Group=ocw
+ExecStart=/usr/local/bin/tempo -config.file=/etc/tempo/tempo.yaml
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=tempo
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
